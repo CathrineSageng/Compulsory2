@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/MyCharacter.h"
 #include "Components/InputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -8,18 +5,29 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
+#include "Components/MyMovementComponent.h"
+#include "Components/MyLookComponent.h"
+#include "Systems/MyLookSystem.h"
+#include "Systems/MyMovementSystem.h"
+
 // Sets default values
 AMyCharacter::AMyCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(GetRootComponent());
 	SpringArm->TargetArmLength = 300.f;
 
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(SpringArm);
+
+	MovementComponent = CreateDefaultSubobject<UMyMovementComponent>(TEXT("MovementComponent"));
+	LookComponent = CreateDefaultSubobject<UMyLookComponent>(TEXT("LookComponent"));
+
+	MovementSystem = NewObject<UMyMovementSystem>();
+	LookSystem = NewObject<UMyLookSystem>();
 
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -30,7 +38,7 @@ AMyCharacter::AMyCharacter()
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -42,36 +50,59 @@ void AMyCharacter::BeginPlay()
 
 void AMyCharacter::Move(const FInputActionValue& Value)
 {
-	const FVector2D MovementVector = Value.Get<FVector2D>();
+	//const FVector2D MovementVector = Value.Get<FVector2D>();
 
-	const FVector Forward = GetActorForwardVector();
-	AddMovementInput(Forward, MovementVector.Y);
-	const FVector Right = GetActorRightVector();
-	AddMovementInput(Right, MovementVector.X);
+	//const FVector Forward = GetActorForwardVector();
+	//AddMovementInput(Forward, MovementVector.Y);
+	//const FVector Right = GetActorRightVector();
+	//AddMovementInput(Right, MovementVector.X);
 
-	//const FRotator Rotation = Controller->GetControlRotation();
-	//const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
+	MovementComponent->MovementInput = Value.Get<FVector2D>();
 
-	//const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	//AddMovementInput(ForwardDirection, MovementVector.Y);
-
-	//const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	//AddMovementInput(ForwardDirection, MovementVector.X);
 }
 
 void AMyCharacter::Look(const FInputActionValue& Value)
 {
-	const FVector2D LookAxisVector = Value.Get<FVector2D>();
+	//const FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	AddControllerPitchInput(LookAxisVector.Y);
-	AddControllerYawInput(LookAxisVector.X);
+	//AddControllerPitchInput(LookAxisVector.Y);
+	//AddControllerYawInput(LookAxisVector.X);
+
+	LookComponent->LookInput = Value.Get<FVector2D>();
 }
+
+
 
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (MovementSystem && MovementComponent)
+	{
+		MovementSystem->Execute(this, MovementComponent);
+
+		// Reset movement input to zero after each update
+		MovementComponent->MovementInput = FVector2D::ZeroVector;
+
+	}
+
+	if (LookSystem && LookComponent)
+	{
+		LookSystem->Execute(GetController(), LookComponent);
+
+		LookComponent->LookInput = FVector2D::ZeroVector;
+	}
+
+	// Clamp the character's position to stay within the plane boundaries
+	FVector CurrentLocation = GetActorLocation();
+	float HalfPlaneSize = 1000.0f; // Half of 20x20 plane dimensions
+
+	CurrentLocation.X = FMath::Clamp(CurrentLocation.X, -HalfPlaneSize, HalfPlaneSize);
+	CurrentLocation.Y = FMath::Clamp(CurrentLocation.Y, -HalfPlaneSize, HalfPlaneSize);
+
+	// Apply the clamped position back to the character
+	SetActorLocation(CurrentLocation);
 }
 
 // Called to bind functionality to input
@@ -80,9 +111,28 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-	{
+	{/*
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);*/
+
+		// Bind movement input
+		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
+		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Completed, this, &AMyCharacter::StopMoving);
+
+		// Bind look input
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &AMyCharacter::StopLooking);
 	}
 }
+
+void AMyCharacter::StopMoving()
+{
+	MovementComponent->MovementInput = FVector2D::ZeroVector;
+}
+
+void AMyCharacter::StopLooking()
+{
+	LookComponent->LookInput = FVector2D::ZeroVector;
+}
+
 

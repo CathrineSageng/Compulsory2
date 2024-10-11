@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -11,6 +9,11 @@ class UInputMappingContext;
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
+
+class UMyMovementComponent;
+class UMyLookComponent;
+class UMyMovementSystem;
+class UMyLookSystem;
 
 UCLASS()
 class COMPULSORY2_API AMyCharacter : public ACharacter
@@ -37,10 +40,24 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* LookAction;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UMyMovementComponent* MovementComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UMyLookComponent* LookComponent;
+
+	UPROPERTY()
+	UMyMovementSystem* MovementSystem;
+
+	UPROPERTY()
+	UMyLookSystem* LookSystem;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void StopMoving();
+	void StopLooking();
 
-private: 
+private:
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm;
 
