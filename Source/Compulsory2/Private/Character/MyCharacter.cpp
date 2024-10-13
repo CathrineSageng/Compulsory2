@@ -5,6 +5,10 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "UObject/ConstructorHelpers.h"
+#include "HUD/ItemCounterWidget.h"
+#include "Blueprint/UserWidget.h"
+
 
 #include "Components/MyMovementComponent.h"
 #include "Components/MyLookComponent.h"
@@ -35,8 +39,8 @@ AMyCharacter::AMyCharacter()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	//// Set default item count
-	//ItemCount = 0;
+	// Set default item count
+	ItemCount = 0;
 }
 
 // Called when the game starts or when spawned
@@ -84,6 +88,30 @@ void AMyCharacter::BeginPlay()
 			NearbyItems.Add(Item);
 		}
 	}
+
+	if (ItemCounterWidgetClass)
+	{
+		ItemCounterWidget = CreateWidget<UItemCounterWidget>(GetWorld(), ItemCounterWidgetClass);
+		if (ItemCounterWidget)
+		{
+			ItemCounterWidget->AddToViewport();
+			UE_LOG(LogTemp, Warning, TEXT("ItemCounterWidget created successfully."));
+
+			// Verify ItemCountText is initialized
+			if (ItemCounterWidget->ItemCountText == nullptr)
+			{
+				UE_LOG(LogTemp, Error, TEXT("ItemCountText is still null after widget creation!"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to create ItemCounterWidget!"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ItemCounterWidgetClass is null!"));
+	}
 }
 
 
@@ -125,17 +153,17 @@ void AMyCharacter::Tick(float DeltaTime)
 	SetActorLocation(CurrentLocation);
 }
 
-//void AMyCharacter::PickupItem()
-//{
-//	// Increment the item count
-//	ItemCount++;
-//
-//	// Update the UI
-//	if (ItemCounterWidget)
-//	{
-//		ItemCounterWidget->UpdateItemCount(ItemCount);
-//	}
-//}
+void AMyCharacter::PickupItem()
+{
+	// Increment the item count
+	ItemCount++;
+
+	// Update the UI
+	if (ItemCounterWidget)
+	{
+		ItemCounterWidget->UpdateItemCount(ItemCount);
+	}
+}
 
 void AMyCharacter::Move(const FInputActionValue& Value)
 {

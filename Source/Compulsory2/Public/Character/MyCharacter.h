@@ -19,6 +19,7 @@ class UMyInputSystem;
 class UMyItemComponent;
 class UMyItemSystem;
 class AMyItemActor;
+class UItemCounterWidget;
 
 UCLASS()
 class COMPULSORY2_API AMyCharacter : public ACharacter
@@ -58,15 +59,20 @@ protected:
 	UPROPERTY()
 	UMyInputSystem* InputSystem;
 
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> ItemCounterWidgetClass;
 
 private:
-	//int32 ItemCount;
+	int32 ItemCount;
 
 	UPROPERTY()
 	UMyItemSystem* ItemSystem;
 
 	// Add a reference to track items if necessary
 	TArray<AMyItemActor*> NearbyItems;
+
+	UPROPERTY()
+	UItemCounterWidget* ItemCounterWidget;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm;

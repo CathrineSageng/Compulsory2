@@ -24,11 +24,11 @@ void UMyItemSystem::CheckForPickup(ACharacter* Character, UMyItemComponent* Item
         ItemComponent->GetOwner()->SetActorHiddenInGame(true);
         ItemComponent->GetOwner()->SetActorEnableCollision(false);
 
-        //// Cast to AMyCharacter to call PickupItem
-        //if (AMyCharacter* MyCharacter = Cast<AMyCharacter>(Character))
-        //{
-        //    MyCharacter->PickupItem();
-        //}
+        // Cast to AMyCharacter to call PickupItem
+        if (AMyCharacter* MyCharacter = Cast<AMyCharacter>(Character))
+        {
+            MyCharacter->PickupItem();
+        }
 
         UE_LOG(LogTemp, Warning, TEXT("Item picked up! Effect: %s"), *ItemComponent->ItemEffect);
     }
