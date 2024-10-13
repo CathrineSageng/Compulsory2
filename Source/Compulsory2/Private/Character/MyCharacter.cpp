@@ -7,8 +7,10 @@
 
 #include "Components/MyMovementComponent.h"
 #include "Components/MyLookComponent.h"
+#include "Components/MyInputComponent.h"
 #include "Systems/MyLookSystem.h"
 #include "Systems/MyMovementSystem.h"
+#include "Systems/MyInputSystem.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -25,10 +27,7 @@ AMyCharacter::AMyCharacter()
 
 	MovementComponent = CreateDefaultSubobject<UMyMovementComponent>(TEXT("MovementComponent"));
 	LookComponent = CreateDefaultSubobject<UMyLookComponent>(TEXT("LookComponent"));
-
-	MovementSystem = NewObject<UMyMovementSystem>();
-	LookSystem = NewObject<UMyLookSystem>();
-
+	MyInputComponentRef = CreateDefaultSubobject<UMyInputComponent>(TEXT("InputComponent"));
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
@@ -39,38 +38,29 @@ void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!InputSystem)
+	{
+		InputSystem = NewObject<UMyInputSystem>(this);
+	}
+
+	if (!MovementSystem)
+	{
+		MovementSystem = NewObject<UMyMovementSystem>(this);
+	}
+
+	if (!LookSystem)
+	{
+		LookSystem = NewObject<UMyLookSystem>(this);
+	}
+
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if (InputSystem && MyInputComponentRef && MovementComponent && LookComponent)
 		{
-			Subsystem->AddMappingContext(SlashContext, 0);
+			InputSystem->InitializeInput(PlayerController, MyInputComponentRef, MovementComponent, LookComponent);
 		}
 	}
 }
-
-void AMyCharacter::Move(const FInputActionValue& Value)
-{
-	//const FVector2D MovementVector = Value.Get<FVector2D>();
-
-	//const FVector Forward = GetActorForwardVector();
-	//AddMovementInput(Forward, MovementVector.Y);
-	//const FVector Right = GetActorRightVector();
-	//AddMovementInput(Right, MovementVector.X);
-
-	MovementComponent->MovementInput = Value.Get<FVector2D>();
-
-}
-
-void AMyCharacter::Look(const FInputActionValue& Value)
-{
-	//const FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	//AddControllerPitchInput(LookAxisVector.Y);
-	//AddControllerYawInput(LookAxisVector.X);
-
-	LookComponent->LookInput = Value.Get<FVector2D>();
-}
-
 
 
 // Called every frame
@@ -84,13 +74,11 @@ void AMyCharacter::Tick(float DeltaTime)
 
 		// Reset movement input to zero after each update
 		MovementComponent->MovementInput = FVector2D::ZeroVector;
-
 	}
 
 	if (LookSystem && LookComponent)
 	{
 		LookSystem->Execute(GetController(), LookComponent);
-
 		LookComponent->LookInput = FVector2D::ZeroVector;
 	}
 
@@ -105,24 +93,14 @@ void AMyCharacter::Tick(float DeltaTime)
 	SetActorLocation(CurrentLocation);
 }
 
-// Called to bind functionality to input
-void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AMyCharacter::Move(const FInputActionValue& Value)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	MovementComponent->MovementInput = Value.Get<FVector2D>();
+}
 
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-	{/*
-		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);*/
-
-		// Bind movement input
-		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
-		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Completed, this, &AMyCharacter::StopMoving);
-
-		// Bind look input
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &AMyCharacter::StopLooking);
-	}
+void AMyCharacter::Look(const FInputActionValue& Value)
+{
+	LookComponent->LookInput = Value.Get<FVector2D>();
 }
 
 void AMyCharacter::StopMoving()
@@ -133,6 +111,25 @@ void AMyCharacter::StopMoving()
 void AMyCharacter::StopLooking()
 {
 	LookComponent->LookInput = FVector2D::ZeroVector;
+}
+
+void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		if (MyInputComponentRef)
+		{
+			// Bind movement action
+			EnhancedInputComponent->BindAction(MyInputComponentRef->MovementAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
+			EnhancedInputComponent->BindAction(MyInputComponentRef->MovementAction, ETriggerEvent::Completed, this, &AMyCharacter::StopMoving);
+
+			// Bind look action
+			EnhancedInputComponent->BindAction(MyInputComponentRef->LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);
+			EnhancedInputComponent->BindAction(MyInputComponentRef->LookAction, ETriggerEvent::Completed, this, &AMyCharacter::StopLooking);
+		}
+	}
 }
 
 
