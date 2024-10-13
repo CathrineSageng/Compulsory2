@@ -16,6 +16,9 @@ class UMyInputComponent;
 class UMyMovementSystem;
 class UMyLookSystem;
 class UMyInputSystem;
+class UMyItemComponent;
+class UMyItemSystem;
+class AMyItemActor;
 
 UCLASS()
 class COMPULSORY2_API AMyCharacter : public ACharacter
@@ -26,6 +29,8 @@ public:
 	AMyCharacter();
 
 	virtual void Tick(float DeltaTime) override;
+
+	void PickupItem();
 
 protected:
 
@@ -55,6 +60,14 @@ protected:
 
 
 private:
+	//int32 ItemCount;
+
+	UPROPERTY()
+	UMyItemSystem* ItemSystem;
+
+	// Add a reference to track items if necessary
+	TArray<AMyItemActor*> NearbyItems;
+
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm;
 

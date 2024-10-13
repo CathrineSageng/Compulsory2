@@ -4,13 +4,17 @@
 #include "EnhancedInputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Components/MyMovementComponent.h"
 #include "Components/MyLookComponent.h"
 #include "Components/MyInputComponent.h"
+#include "Components/MyItemComponent.h"
 #include "Systems/MyLookSystem.h"
 #include "Systems/MyMovementSystem.h"
 #include "Systems/MyInputSystem.h"
+#include "Systems/MyItemSystem.h"
+#include "Character/MyItemActor.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -31,6 +35,8 @@ AMyCharacter::AMyCharacter()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
+	//// Set default item count
+	//ItemCount = 0;
 }
 
 // Called when the game starts or when spawned
@@ -53,11 +59,29 @@ void AMyCharacter::BeginPlay()
 		LookSystem = NewObject<UMyLookSystem>(this);
 	}
 
+	if (!ItemSystem)
+	{
+		ItemSystem = NewObject<UMyItemSystem>(this);
+	}
+
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		if (InputSystem && MyInputComponentRef && MovementComponent && LookComponent)
 		{
 			InputSystem->InitializeInput(PlayerController, MyInputComponentRef, MovementComponent, LookComponent);
+		}
+	}
+
+	// Temporary array to hold all found actors
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyItemActor::StaticClass(), FoundActors);
+
+	// Loop through the found actors and cast them to AMyItemActor
+	for (AActor* Actor : FoundActors)
+	{
+		if (AMyItemActor* Item = Cast<AMyItemActor>(Actor))
+		{
+			NearbyItems.Add(Item);
 		}
 	}
 }
@@ -82,6 +106,14 @@ void AMyCharacter::Tick(float DeltaTime)
 		LookComponent->LookInput = FVector2D::ZeroVector;
 	}
 
+	for (AMyItemActor* Item : NearbyItems)
+	{
+		if (Item && ItemSystem)
+		{
+			ItemSystem->CheckForPickup(this, Item->FindComponentByClass<UMyItemComponent>());
+		}
+	}
+
 	// Clamp the character's position to stay within the plane boundaries
 	FVector CurrentLocation = GetActorLocation();
 	float HalfPlaneSize = 1000.0f; // Half of 20x20 plane dimensions
@@ -92,6 +124,18 @@ void AMyCharacter::Tick(float DeltaTime)
 	// Apply the clamped position back to the character
 	SetActorLocation(CurrentLocation);
 }
+
+//void AMyCharacter::PickupItem()
+//{
+//	// Increment the item count
+//	ItemCount++;
+//
+//	// Update the UI
+//	if (ItemCounterWidget)
+//	{
+//		ItemCounterWidget->UpdateItemCount(ItemCount);
+//	}
+//}
 
 void AMyCharacter::Move(const FInputActionValue& Value)
 {
