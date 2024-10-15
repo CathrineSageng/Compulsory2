@@ -20,6 +20,7 @@ class UMyItemComponent;
 class UMyItemSystem;
 class AMyItemActor;
 class UItemCounterWidget;
+class UMyInteractionSystem;
 
 UCLASS()
 class COMPULSORY2_API AMyCharacter : public ACharacter
@@ -61,6 +62,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> ItemCounterWidgetClass;
+
+	UPROPERTY()
+	UMyInteractionSystem* InteractionSystem;
+
+	// Reference to the destroy enemy action
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* DestroyEnemyAction;
+
+	// Function to handle X key press
+	void DestroyEnemy();
 
 private:
 	int32 ItemCount;

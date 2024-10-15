@@ -18,7 +18,9 @@
 #include "Systems/MyMovementSystem.h"
 #include "Systems/MyInputSystem.h"
 #include "Systems/MyItemSystem.h"
+#include "Systems/MyInteractionSystem.h"
 #include "Character/MyItemActor.h"
+
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -112,6 +114,10 @@ void AMyCharacter::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("ItemCounterWidgetClass is null!"));
 	}
+
+	//Rebekka
+// Initialize InteractionSystem
+	InteractionSystem = NewObject<UMyInteractionSystem>(this);
 }
 
 
@@ -151,6 +157,12 @@ void AMyCharacter::Tick(float DeltaTime)
 
 	// Apply the clamped position back to the character
 	SetActorLocation(CurrentLocation);
+
+	// Process interactions every tick
+	if (InteractionSystem)
+	{
+		InteractionSystem->ProcessInteractions(this);
+	}
 }
 
 void AMyCharacter::PickupItem()
@@ -185,6 +197,15 @@ void AMyCharacter::StopLooking()
 	LookComponent->LookInput = FVector2D::ZeroVector;
 }
 
+void AMyCharacter::DestroyEnemy()
+{
+	// Call the interaction system logic for destroying an enemy when "X" is pressed
+	if (InteractionSystem)
+	{
+		InteractionSystem->ProcessInteractions(this);
+	}
+}
+
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -200,6 +221,12 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 			// Bind look action
 			EnhancedInputComponent->BindAction(MyInputComponentRef->LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);
 			EnhancedInputComponent->BindAction(MyInputComponentRef->LookAction, ETriggerEvent::Completed, this, &AMyCharacter::StopLooking);
+
+			// Bind the "X" key action for destroying the enemy
+			if (DestroyEnemyAction)
+			{
+				EnhancedInputComponent->BindAction(DestroyEnemyAction, ETriggerEvent::Triggered, this, &AMyCharacter::DestroyEnemy);
+			}
 		}
 	}
 }
