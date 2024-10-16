@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 #include "HUD/ItemCounterWidget.h"
+#include "HUD/EnemyCounterWidget.h"
 #include "Blueprint/UserWidget.h"
 
 
@@ -20,6 +21,7 @@
 #include "Systems/MyItemSystem.h"
 #include "Systems/MyInteractionSystem.h"
 #include "Character/MyItemActor.h"
+#include "Character/MyEnemy.h"
 
 
 // Sets default values
@@ -118,6 +120,22 @@ void AMyCharacter::BeginPlay()
 	//Rebekka
 // Initialize InteractionSystem
 	InteractionSystem = NewObject<UMyInteractionSystem>(this);
+
+	// Get all enemies in the world and count them
+	TArray<AActor*> FoundEnemies;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyEnemy::StaticClass(), FoundEnemies);
+	EnemiesLeft = FoundEnemies.Num(); // Initialize the enemy count
+
+	
+	if (EnemyCounterWidgetClass)
+	{
+		EnemyCounterWidget = CreateWidget<UEnemyCounterWidget>(GetWorld(), EnemyCounterWidgetClass);
+		if (EnemyCounterWidget)
+		{
+			EnemyCounterWidget->AddToViewport();
+			EnemyCounterWidget->UpdateEnemyCount(EnemiesLeft);  // Add UpdateEnemyCount function in the widget
+		}
+	}
 }
 
 

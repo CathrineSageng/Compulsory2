@@ -20,6 +20,7 @@ class UMyItemComponent;
 class UMyItemSystem;
 class AMyItemActor;
 class UItemCounterWidget;
+class UEnemyCounterWidget;
 class UMyInteractionSystem;
 
 UCLASS()
@@ -33,6 +34,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void PickupItem();
+
+	UPROPERTY()
+	UEnemyCounterWidget* EnemyCounterWidget;
+
+	// Number of enemies left in the game
+	int32 EnemiesLeft;
 
 protected:
 
@@ -62,6 +69,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> ItemCounterWidgetClass;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> EnemyCounterWidgetClass;
 
 	UPROPERTY()
 	UMyInteractionSystem* InteractionSystem;
