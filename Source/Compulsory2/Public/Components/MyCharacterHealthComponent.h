@@ -22,6 +22,12 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Health")
     FOnCharacterDeath OnCharacterDeath;
 
+    // Function to get the current health
+    int32 GetCurrentHealth() const;
+
+    // Function to get the max health
+    int32 GetMaxHealth() const;
+
 protected:
     virtual void BeginPlay() override;
 
@@ -30,4 +36,10 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "Health")
     int32 MaxHits = 4; // Maximum hits allowed before death
+
+    // Current health of the character
+    int32 CurrentHealth;
+
+    // Max health of the character
+    int32 MaxHealth;
 };

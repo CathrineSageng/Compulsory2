@@ -18,7 +18,7 @@ void UMyInteractionSystem::ProcessInteractions(AMyCharacter* PlayerCharacter)
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(PlayerCharacter->GetWorld(), 0);
     if (PlayerController == nullptr) return;
 
-    if (PlayerController->WasInputKeyJustPressed(EKeys::X))
+    if (PlayerController->WasInputKeyJustPressed(EKeys::SpaceBar))
     {
         TArray<AActor*> FoundEnemies;
         UGameplayStatics::GetAllActorsOfClass(PlayerCharacter->GetWorld(), AMyEnemy::StaticClass(), FoundEnemies);

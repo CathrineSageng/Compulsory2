@@ -8,6 +8,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "HUD/ItemCounterWidget.h"
 #include "HUD/EnemyCounterWidget.h"
+#include "HUD/CharacterHealthWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
 
@@ -156,6 +157,17 @@ void AMyCharacter::BeginPlay()
 	 // Bind overlap and hit events to the capsule component
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnEnemyOverlap);
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMyCharacter::OnEnemyHit);
+
+	// Initialize Health Widget
+	if (HealthWidgetClass)
+	{
+		HealthWidget = CreateWidget<UCharacterHealthWidget>(GetWorld(), HealthWidgetClass);
+		if (HealthWidget)
+		{
+			HealthWidget->AddToViewport();
+			HealthWidget->UpdateHealth(HealthComponent->GetCurrentHealth(), HealthComponent->GetMaxHealth());
+		}
+	}
 }
 
 
@@ -209,10 +221,14 @@ void AMyCharacter::OnEnemyHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	AMyEnemy* Enemy = Cast<AMyEnemy>(OtherActor);
 	if (Enemy && bCanTakeDamage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnEnemyHit: Character has hit an enemy"));
 		bCanTakeDamage = false;
-		HealthComponent->ApplyDamage(1); // Register one hit of damage
-		GetWorld()->GetTimerManager().SetTimer(DamageCooldownTimer, this, &AMyCharacter::ResetDamageCooldown, 1.0f, false); // Add cooldown before taking damage again
+		HealthComponent->ApplyDamage(1);  // Apply damage
+		// Update the health widget
+		if (HealthWidget)
+		{
+			HealthWidget->UpdateHealth(HealthComponent->GetCurrentHealth(), HealthComponent->GetMaxHealth());
+		}
+		GetWorld()->GetTimerManager().SetTimer(DamageCooldownTimer, this, &AMyCharacter::ResetDamageCooldown, 1.0f, false);  // Damage cooldown
 	}
 }
 
@@ -221,10 +237,13 @@ void AMyCharacter::OnEnemyOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	AMyEnemy* Enemy = Cast<AMyEnemy>(OtherActor);
 	if (Enemy && bCanTakeDamage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnEnemyOverlap: Character has collided with enemy"));
 		bCanTakeDamage = false;
-		HealthComponent->ApplyDamage(1);  // Register one hit of damage
-		GetWorld()->GetTimerManager().SetTimer(DamageCooldownTimer, this, &AMyCharacter::ResetDamageCooldown, 1.0f, false); // Add cooldown before taking damage again
+		HealthComponent->ApplyDamage(1);  // Apply damage
+		if (HealthWidget)
+		{
+			HealthWidget->UpdateHealth(HealthComponent->GetCurrentHealth(), HealthComponent->GetMaxHealth());
+		}
+		GetWorld()->GetTimerManager().SetTimer(DamageCooldownTimer, this, &AMyCharacter::ResetDamageCooldown, 1.0f, false);  // Damage cooldown
 	}
 }
 

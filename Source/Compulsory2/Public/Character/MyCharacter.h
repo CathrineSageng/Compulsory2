@@ -105,6 +105,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> EnemyCounterWidgetClass;
 
+	// Health Widget Class to spawn in-game
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<class UCharacterHealthWidget> HealthWidgetClass;
+
+	// Actual instance of the health widget
+	UCharacterHealthWidget* HealthWidget;
 private:
 	//Variables for handling item collection
 	int32 ItemCount;
