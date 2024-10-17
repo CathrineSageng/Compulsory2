@@ -22,6 +22,8 @@ class AMyItemActor;
 class UItemCounterWidget;
 class UEnemyCounterWidget;
 class UMyInteractionSystem;
+class UMyCharacterHealthComponent;
+
 
 UCLASS()
 class COMPULSORY2_API AMyCharacter : public ACharacter
@@ -29,17 +31,19 @@ class COMPULSORY2_API AMyCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
+	//The constuctor and tick function
 	AMyCharacter();
-
 	virtual void Tick(float DeltaTime) override;
 
+	//Function that handles pick up 
 	void PickupItem();
-
-	UPROPERTY()
-	UEnemyCounterWidget* EnemyCounterWidget;
 
 	// Number of enemies left in the game
 	int32 EnemiesLeft;
+
+	//References the enemy counter Widget for the HUD
+	UPROPERTY()
+	UEnemyCounterWidget* EnemyCounterWidget;
 
 protected:
 
@@ -51,6 +55,25 @@ protected:
 	void StopMoving();
 	void StopLooking();
 
+	// Function to handle collision with enemy
+	UFUNCTION()
+	void OnEnemyOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+		bool bFromSweep, const FHitResult& SweepResult);
+
+	//Function to handle hits from enemies
+	UFUNCTION()
+	void OnEnemyHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+		const FHitResult& Hit);
+
+	// Function to handle X key press and destroying an enemy
+	void DestroyEnemy();
+
+	// Function to handle character death
+	UFUNCTION()
+	void HandleDeath();
+
 	//Components
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UMyMovementComponent* MovementComponent;
@@ -58,6 +81,8 @@ protected:
 	UMyLookComponent* LookComponent;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UMyInputComponent* MyInputComponentRef;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UMyCharacterHealthComponent* HealthComponent;
 
 	//Systems
 	UPROPERTY()
@@ -69,30 +94,35 @@ protected:
 	UPROPERTY()
 	UMyInteractionSystem* InteractionSystem;
 
+	// Input action for destroying an enemy 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* DestroyEnemyAction;
+
+	//UI elements 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> ItemCounterWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> EnemyCounterWidgetClass;
 
-	// Reference to the destroy enemy action
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* DestroyEnemyAction;
-
-	// Function to handle X key press
-	void DestroyEnemy();
-
 private:
+	//Variables for handling item collection
 	int32 ItemCount;
-
+	TArray<AMyItemActor*> NearbyItems;
+	//Item system reference 
 	UPROPERTY()
 	UMyItemSystem* ItemSystem;
-
-	// Add a reference to track items if necessary
-	TArray<AMyItemActor*> NearbyItems;
-
+	
+	//References the Item Widget 
 	UPROPERTY()
 	UItemCounterWidget* ItemCounterWidget;
+
+	//Track if the character can take damage, this is so we prevents duplicate the hits 
+	bool bCanTakeDamage;
+	FTimerHandle DamageCooldownTimer;
+
+	//Resets for character taking damage 
+	void ResetDamageCooldown();
 
 	//Camera properties
 	UPROPERTY(VisibleAnywhere)
@@ -103,3 +133,4 @@ private:
 	// Bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };
+

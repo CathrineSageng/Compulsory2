@@ -9,6 +9,9 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Actor.h"
+#include "Components/MyCharacterHealthComponent.h"
+
+//Handles inteaction between the player (character) and the nearby enemies. 
 
 void UMyInteractionSystem::ProcessInteractions(AMyCharacter* PlayerCharacter)
 {
@@ -32,12 +35,17 @@ void UMyInteractionSystem::ProcessInteractions(AMyCharacter* PlayerCharacter)
 
                 if (DistanceToEnemy <= InteractionRadius)
                 {
-                    UMyEnemyHealthComponent* HealthComponent = Enemy->FindComponentByClass<UMyEnemyHealthComponent>();
+                    UMyCharacterHealthComponent* HealthComponent = PlayerCharacter->FindComponentByClass<UMyCharacterHealthComponent>();
                     if (HealthComponent)
                     {
-                        HealthComponent->TakeDamage(100.f);
+                        HealthComponent->ApplyDamage(1); // Apply 1 hit of damage to the character
+                    }
 
-                        if (HealthComponent->IsDead())
+                    UMyEnemyHealthComponent* EnemyHealthComponent = Enemy->FindComponentByClass<UMyEnemyHealthComponent>();
+                    if (EnemyHealthComponent)
+                    {
+                        EnemyHealthComponent->TakeDamage(100.f);
+                        if (EnemyHealthComponent->IsDead())
                         {
                             Enemy->Destroy();
                             PlayerCharacter->EnemiesLeft--;  // Decrement enemy count

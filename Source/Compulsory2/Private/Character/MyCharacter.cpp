@@ -9,12 +9,15 @@
 #include "HUD/ItemCounterWidget.h"
 #include "HUD/EnemyCounterWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/CapsuleComponent.h"
 
 
 #include "Components/MyMovementComponent.h"
 #include "Components/MyLookComponent.h"
 #include "Components/MyInputComponent.h"
 #include "Components/MyItemComponent.h"
+#include "Components/MyEnemyHealthComponent.h"
+#include "Components/MyCharacterHealthComponent.h"
 #include "Systems/MyLookSystem.h"
 #include "Systems/MyMovementSystem.h"
 #include "Systems/MyInputSystem.h"
@@ -45,7 +48,13 @@ AMyCharacter::AMyCharacter()
 
 	//This is the default value for counting the items the character has collected
 	ItemCount = 0;
+
+	bCanTakeDamage = true; // Allow damage initially
+
+	HealthComponent = CreateDefaultSubobject<UMyCharacterHealthComponent>(TEXT("HealthComponent"));
 }
+
+
 
 // Called when the game starts
 void AMyCharacter::BeginPlay()
@@ -70,6 +79,11 @@ void AMyCharacter::BeginPlay()
 	if (!ItemSystem)
 	{
 		ItemSystem = NewObject<UMyItemSystem>(this);
+	}
+
+	if (HealthComponent)
+	{
+		HealthComponent->OnCharacterDeath.AddDynamic(this, &AMyCharacter::HandleDeath);
 	}
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
@@ -126,7 +140,7 @@ void AMyCharacter::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyEnemy::StaticClass(), FoundEnemies);
 	EnemiesLeft = FoundEnemies.Num(); // Initialize the enemy count
 
-	
+
 	if (EnemyCounterWidgetClass)
 	{
 		EnemyCounterWidget = CreateWidget<UEnemyCounterWidget>(GetWorld(), EnemyCounterWidgetClass);
@@ -136,7 +150,14 @@ void AMyCharacter::BeginPlay()
 			EnemyCounterWidget->UpdateEnemyCount(EnemiesLeft);  // Add UpdateEnemyCount function in the widget
 		}
 	}
+	//// Bind to OnComponentHit to detect blocking hits
+	//GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMyCharacter::OnEnemyHit);
+
+	 // Bind overlap and hit events to the capsule component
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnEnemyOverlap);
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMyCharacter::OnEnemyHit);
 }
+
 
 
 // Called every frame
@@ -183,6 +204,35 @@ void AMyCharacter::Tick(float DeltaTime)
 	}
 }
 
+void AMyCharacter::OnEnemyHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	AMyEnemy* Enemy = Cast<AMyEnemy>(OtherActor);
+	if (Enemy && bCanTakeDamage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnEnemyHit: Character has hit an enemy"));
+		bCanTakeDamage = false;
+		HealthComponent->ApplyDamage(1); // Register one hit of damage
+		GetWorld()->GetTimerManager().SetTimer(DamageCooldownTimer, this, &AMyCharacter::ResetDamageCooldown, 1.0f, false); // Add cooldown before taking damage again
+	}
+}
+
+void AMyCharacter::OnEnemyOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AMyEnemy* Enemy = Cast<AMyEnemy>(OtherActor);
+	if (Enemy && bCanTakeDamage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnEnemyOverlap: Character has collided with enemy"));
+		bCanTakeDamage = false;
+		HealthComponent->ApplyDamage(1);  // Register one hit of damage
+		GetWorld()->GetTimerManager().SetTimer(DamageCooldownTimer, this, &AMyCharacter::ResetDamageCooldown, 1.0f, false); // Add cooldown before taking damage again
+	}
+}
+
+void AMyCharacter::ResetDamageCooldown()
+{
+	bCanTakeDamage = true; // Allow damage again after the cooldown period
+}
+
 void AMyCharacter::PickupItem()
 {
 	// Increment the item count
@@ -222,6 +272,13 @@ void AMyCharacter::DestroyEnemy()
 	{
 		InteractionSystem->ProcessInteractions(this);
 	}
+}
+
+void AMyCharacter::HandleDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Character has died!"));
+
+	Destroy();
 }
 
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
