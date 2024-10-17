@@ -23,6 +23,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float FollowRadius = 500.0f; // Radius within which the enemy will follow the character
+
+	AActor* TargetActor; // The character the enemy will follow
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
