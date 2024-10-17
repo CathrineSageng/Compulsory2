@@ -9,6 +9,7 @@
 #include "HUD/ItemCounterWidget.h"
 #include "HUD/EnemyCounterWidget.h"
 #include "HUD/CharacterHealthWidget.h"
+#include "HUD/GameOverWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
 
@@ -295,7 +296,23 @@ void AMyCharacter::DestroyEnemy()
 
 void AMyCharacter::HandleDeath()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Character has died!"));
+	// Show the Game Over Widget
+	if (GameOverWidgetClass)
+	{
+		GameOverWidget = CreateWidget<UGameOverWidget>(GetWorld(), GameOverWidgetClass);
+		if (GameOverWidget)
+		{
+			GameOverWidget->AddToViewport();
+
+			// Optionally, stop player input or freeze gameplay
+			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+			if (PlayerController)
+			{
+				PlayerController->SetInputMode(FInputModeUIOnly());  // Focus on UI
+				PlayerController->bShowMouseCursor = true;           // Show cursor for UI interaction
+			}
+		}
+	}
 
 	Destroy();
 }

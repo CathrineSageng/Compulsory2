@@ -111,6 +111,12 @@ protected:
 
 	// Actual instance of the health widget
 	UCharacterHealthWidget* HealthWidget;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<class UGameOverWidget> GameOverWidgetClass;
+
+	UGameOverWidget* GameOverWidget;
 private:
 	//Variables for handling item collection
 	int32 ItemCount;
