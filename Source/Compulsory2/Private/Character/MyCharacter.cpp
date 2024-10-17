@@ -10,6 +10,7 @@
 #include "HUD/EnemyCounterWidget.h"
 #include "HUD/CharacterHealthWidget.h"
 #include "HUD/GameOverWidget.h"
+#include "HUD/YouWonWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
 
@@ -108,6 +109,9 @@ void AMyCharacter::BeginPlay()
 			NearbyItems.Add(Item);
 		}
 	}
+
+	// Initialize MaxItemCount to the total number of items //YouWon Widget
+	MaxItemCount = NearbyItems.Num();
 
 	if (ItemCounterWidgetClass)
 	{
@@ -214,6 +218,28 @@ void AMyCharacter::Tick(float DeltaTime)
 	if (InteractionSystem)
 	{
 		InteractionSystem->ProcessInteractions(this);
+	}
+
+	// Check if all items are collected and all enemies are killed
+	if (ItemCount == MaxItemCount && EnemiesLeft == 0)
+	{
+		// Show the You Won Widget
+		if (YouWonWidgetClass)
+		{
+			YouWonWidget = CreateWidget<UYouWonWidget>(GetWorld(), YouWonWidgetClass);
+			if (YouWonWidget)
+			{
+				YouWonWidget->AddToViewport();
+
+				// Optionally, stop player input or freeze gameplay
+				APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+				if (PlayerController)
+				{
+					PlayerController->SetInputMode(FInputModeUIOnly());  // Focus on UI
+					PlayerController->bShowMouseCursor = true;           // Show cursor for UI interaction
+				}
+			}
+		}
 	}
 }
 

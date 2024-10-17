@@ -45,6 +45,7 @@ public:
 	UPROPERTY()
 	UEnemyCounterWidget* EnemyCounterWidget;
 
+	int32 MaxItemCount;
 protected:
 
 	virtual void BeginPlay() override;
@@ -117,6 +118,10 @@ protected:
 	TSubclassOf<class UGameOverWidget> GameOverWidgetClass;
 
 	UGameOverWidget* GameOverWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<class UYouWonWidget> YouWonWidgetClass;
+	UYouWonWidget* YouWonWidget;
 private:
 	//Variables for handling item collection
 	int32 ItemCount;
