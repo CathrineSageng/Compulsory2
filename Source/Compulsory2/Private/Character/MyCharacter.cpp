@@ -43,11 +43,11 @@ AMyCharacter::AMyCharacter()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	// Set default item count
+	//This is the default value for counting the items the character has collected
 	ItemCount = 0;
 }
 
-// Called when the game starts or when spawned
+// Called when the game starts
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -80,7 +80,7 @@ void AMyCharacter::BeginPlay()
 		}
 	}
 
-	// Temporary array to hold all found actors
+	// Temporary array to hold all the found actors
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyItemActor::StaticClass(), FoundActors);
 

@@ -45,7 +45,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	// Input handling methods for movement and look actions
+	//Functions for the movement and look input
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void StopMoving();
@@ -66,15 +66,14 @@ protected:
 	UMyLookSystem* LookSystem;
 	UPROPERTY()
 	UMyInputSystem* InputSystem;
+	UPROPERTY()
+	UMyInteractionSystem* InteractionSystem;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> ItemCounterWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> EnemyCounterWidgetClass;
-
-	UPROPERTY()
-	UMyInteractionSystem* InteractionSystem;
 
 	// Reference to the destroy enemy action
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -95,9 +94,9 @@ private:
 	UPROPERTY()
 	UItemCounterWidget* ItemCounterWidget;
 
+	//Camera properties
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm;
-
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* ViewCamera;
 
