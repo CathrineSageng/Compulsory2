@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,9 +20,9 @@ class COMPULSORY2_API UMyInputSystem : public UObject
 public:
     void InitializeInput(APlayerController* PlayerController, UMyInputComponent* InputComponent, UMyMovementComponent* MovementComponent, UMyLookComponent* LookComponent);
 
-    //Prosess movement input
+    // Process movement input
     UMyMovementComponent* CachedMovementComponent;
-    //Process Look input 
+    // Process Look input 
     UMyLookComponent* CachedLookComponent;
 
 private:

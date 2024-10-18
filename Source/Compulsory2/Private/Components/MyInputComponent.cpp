@@ -3,7 +3,7 @@
 
 UMyInputComponent::UMyInputComponent()
 {
-	//No movement
+	// No movement
 	MovementInput = FVector2D::ZeroVector;
 	LookInput = FVector2D::ZeroVector;
 }

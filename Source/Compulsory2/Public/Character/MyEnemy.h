@@ -20,17 +20,17 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	//This is the radius where the enemy will follow the character
+	// This is the radius where the enemy will follow the character
 	UPROPERTY(EditAnywhere, Category = "AI")
 	float FollowRadius = 500.0f; 
 
-	//Referencing the character the enemy is following
+	// Referencing the character the enemy is following
 	AActor* TargetActor; // The character the enemy will follow
 
 protected:
 	virtual void BeginPlay() override;
 
-	//Health component to the enemy, used for managing health and dagame 
+	// Health component to the enemy, used for managing health and damage 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UMyEnemyHealthComponent* HealthComponent;
 	

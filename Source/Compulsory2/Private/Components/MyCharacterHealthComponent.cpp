@@ -4,18 +4,18 @@ UMyCharacterHealthComponent::UMyCharacterHealthComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
     CurrentHits = 0;
-    //Dafault value for health 
+    // Default value for health 
     MaxHealth = 4;          
     CurrentHealth = MaxHealth;  
 }
 
-//Gets the current health for character 
+// Gets the current health for character 
 int32 UMyCharacterHealthComponent::GetCurrentHealth() const
 {
     return CurrentHealth;
 }
 
-//Gets the maximun value for the character 
+// Gets the maximum value for the character 
 int32 UMyCharacterHealthComponent::GetMaxHealth() const
 {
     return MaxHealth;
@@ -26,7 +26,7 @@ void UMyCharacterHealthComponent::BeginPlay()
     Super::BeginPlay();
 }
 
-//This function applies damage on the character 
+// This function applies damage on the character 
 void UMyCharacterHealthComponent::ApplyDamage(int32 Damage)
 {
     CurrentHealth -= Damage;

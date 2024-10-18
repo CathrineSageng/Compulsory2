@@ -4,7 +4,7 @@
 #include "GameFramework/Character.h"
 #include "Components/MyItemComponent.h"
 
-//Checks if the character is close enough to pick up items 
+// Checks if the character is close enough to pick up items 
 void UMyItemSystem::CheckForPickup(ACharacter* Character, UMyItemComponent* ItemComponent)
 {
     if (!Character || !ItemComponent || ItemComponent->bIsPickedUp)
@@ -19,11 +19,11 @@ void UMyItemSystem::CheckForPickup(ACharacter* Character, UMyItemComponent* Item
     {
         ItemComponent->bIsPickedUp = true;
 
-        //Removes the items from the game 
+        // Removes the items from the game 
         ItemComponent->GetOwner()->SetActorHiddenInGame(true);
         ItemComponent->GetOwner()->SetActorEnableCollision(false);
 
-        //Calls the pickup function 
+        // Calls the pickup function 
         if (AMyCharacter* MyCharacter = Cast<AMyCharacter>(Character))
         {
             MyCharacter->PickupItem();

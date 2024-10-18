@@ -2,7 +2,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/MyLookComponent.h"
 
-//Process the look input to rotate the camera
+// Process the look input to rotate the camera
 void UMyLookSystem::Execute(AController* Controller, UMyLookComponent* LookComponent)
 {
     if (LookComponent)

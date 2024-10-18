@@ -9,7 +9,7 @@
 #include "Components/MyLookComponent.h"
 #include "Components/MyMovementComponent.h"
 
-//Binds the actions for movement and looking
+// Binds the actions for movement and looking
 void UMyInputSystem::InitializeInput(APlayerController* PlayerController, UMyInputComponent* InputComponent, UMyMovementComponent* MovementComponent, UMyLookComponent* LookComponent)
 {
     CachedMovementComponent = MovementComponent;
@@ -34,7 +34,7 @@ void UMyInputSystem::InitializeInput(APlayerController* PlayerController, UMyInp
 
 }
 
-//Called when the movement action is triggered 
+// Called when the movement action is triggered 
 void UMyInputSystem::HandleMoveInput(const FInputActionValue& Value)
 {
     if (CachedMovementComponent)
@@ -43,7 +43,7 @@ void UMyInputSystem::HandleMoveInput(const FInputActionValue& Value)
     }
 }
 
-//Stops the movement input
+// Stops the movement input
 void UMyInputSystem::StopMoveInput()
 {
     if (CachedMovementComponent)
@@ -52,7 +52,7 @@ void UMyInputSystem::StopMoveInput()
     }
 }
 
-//Called when the look action is triggered. 
+// Called when the look action is triggered. 
 void UMyInputSystem::HandleLookInput(const FInputActionValue& Value)
 {
     if (CachedLookComponent)
@@ -61,7 +61,7 @@ void UMyInputSystem::HandleLookInput(const FInputActionValue& Value)
     }
 }
 
-//Stops the look input 
+// Stops the look input 
 void UMyInputSystem::StopLookInput()
 {
     if (CachedLookComponent)

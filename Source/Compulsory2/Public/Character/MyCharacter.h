@@ -31,17 +31,17 @@ class COMPULSORY2_API AMyCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	//The constuctor and tick function
+	// The constuctor and tick function
 	AMyCharacter();
 	virtual void Tick(float DeltaTime) override;
 
-	//Function that handles pick up 
+	// Function that handles pick up 
 	void PickupItem();
 
 	// Number of enemies left in the game
 	int32 EnemiesLeft;
 
-	//References the enemy counter Widget for the HUD
+	// References the enemy counter Widget for the HUD
 	UPROPERTY()
 	UEnemyCounterWidget* EnemyCounterWidget;
 
@@ -50,7 +50,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	//Functions for the movement and look input
+	// Functions for the movement and look input
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void StopMoving();
@@ -62,20 +62,20 @@ protected:
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 		bool bFromSweep, const FHitResult& SweepResult);
 
-	//Function to handle hits from enemies
+	// Function to handle hits from enemies
 	UFUNCTION()
 	void OnEnemyHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 		const FHitResult& Hit);
 
-	// Function to handle X key press and destroying an enemy
+	// Function to handle SpaceBar key press and destroying an enemy
 	void DestroyEnemy();
 
 	// Function to handle character death
 	UFUNCTION()
 	void HandleDeath();
 
-	//Components
+	// Components
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UMyMovementComponent* MovementComponent;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -85,7 +85,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UMyCharacterHealthComponent* HealthComponent;
 
-	//Systems
+	// Systems
 	UPROPERTY()
 	UMyMovementSystem* MovementSystem;
 	UPROPERTY()
@@ -99,7 +99,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* DestroyEnemyAction;
 
-	//UI elements 
+	// UI elements 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> ItemCounterWidgetClass;
 
@@ -118,26 +118,26 @@ protected:
 	TSubclassOf<class UYouWonWidget> YouWonWidgetClass;
 	UYouWonWidget* YouWonWidget;
 private:
-	//Variables for handling item collection
+	// Variables for handling item collection
 	int32 ItemCount;
 	TArray<AMyItemActor*> NearbyItems;
-	//Item system reference 
+	// Item system reference 
 	UPROPERTY()
 	UMyItemSystem* ItemSystem;
 	
-	//References the Item Widget 
+	// References the Item Widget 
 	UPROPERTY()
 	UItemCounterWidget* ItemCounterWidget;
 
-	//Track if the character can take damage, this is so we prevents duplicate the hits 
-	//Letter 'b' in the name shows that the variable is an boolean and is common prectice in UE
+	// Track if the character can take damage, this is so we prevents duplicating the hits 
+	// Letter 'b' in the name shows that the variable is an boolean and is common prectice in UE
 	bool bCanTakeDamage;
 	FTimerHandle DamageCooldownTimer;
 
-	//Resets for character taking damage 
+	// Resets for character taking damage 
 	void ResetDamageCooldown();
 
-	//Camera properties
+	// Camera properties
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleAnywhere)

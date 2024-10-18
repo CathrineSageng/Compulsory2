@@ -1,10 +1,11 @@
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MyCharacterHealthComponent.generated.h"
 
-//This delegate will be called when the character dies 
+// This delegate will be called when the character dies 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeath);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -21,20 +22,20 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Health")
     FOnCharacterDeath OnCharacterDeath;
 
-    //The current helath on the character 
+    // The current health on the character 
     int32 GetCurrentHealth() const;
 
-    //Gets the maximum health on the character 
+    // Gets the maximum health on the character 
     int32 GetMaxHealth() const;
 
 protected:
     virtual void BeginPlay() override;
 
 private:
-    //The currents hits the character has taken 
+    // The currents hits the character has taken 
     int32 CurrentHits;
 
-    //The maximum hits om the character is 4 
+    // The maximum hits om the character is 4 
     UPROPERTY(EditDefaultsOnly, Category = "Health")
     int32 MaxHits = 4; 
 

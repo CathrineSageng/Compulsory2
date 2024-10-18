@@ -286,7 +286,7 @@ void AMyCharacter::StopLooking()
 	LookComponent->LookInput = FVector2D::ZeroVector;
 }
 
-// Destroys an enemy when spacebar is pressed 
+// Destroys an enemy when SpaceBar is pressed 
 void AMyCharacter::DestroyEnemy()
 {
 	if (InteractionSystem)
