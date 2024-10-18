@@ -130,6 +130,7 @@ private:
 	UItemCounterWidget* ItemCounterWidget;
 
 	//Track if the character can take damage, this is so we prevents duplicate the hits 
+	//Letter 'b' in the name shows that the variable is an boolean and is common prectice in UE
 	bool bCanTakeDamage;
 	FTimerHandle DamageCooldownTimer;
 

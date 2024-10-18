@@ -11,7 +11,6 @@ class COMPULSORY2_API UMyLookComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UMyLookComponent();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Look")

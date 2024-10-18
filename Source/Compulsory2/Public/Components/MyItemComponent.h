@@ -13,15 +13,14 @@ class COMPULSORY2_API UMyItemComponent : public UActorComponent
 public:
     UMyItemComponent();
 
-    // Tracks whether the item has been picked up
+    // bool for checking if the item is picked up 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item")
     bool bIsPickedUp;
 
-    // Detection radius for picking up the item
+    // The radius the item can be picked up 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     float PickupRadius;
 
-    // The item's effect (could be a placeholder for any effect the item has)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     FString ItemEffect;
 };

@@ -18,27 +18,33 @@ void UMyInteractionSystem::ProcessInteractions(AMyCharacter* PlayerCharacter)
 
     if (PlayerController->WasInputKeyJustPressed(EKeys::SpaceBar))
     {
+        //Finds all the enenies in the world
         TArray<AActor*> FoundEnemies;
         UGameplayStatics::GetAllActorsOfClass(PlayerCharacter->GetWorld(), AMyEnemy::StaticClass(), FoundEnemies);
 
+        //Loops trough the found enemies in the world and checks for any interactions between enemies and character
         for (AActor* Actor : FoundEnemies)
         {
             AMyEnemy* Enemy = Cast<AMyEnemy>(Actor);
             if (Enemy)
             {
+                //Gets the location 
                 FVector PlayerLocation = PlayerCharacter->GetActorLocation();
                 FVector EnemyLocation = Enemy->GetActorLocation();
+                //Calculates the distance between the character and enemies
                 float DistanceToEnemy = FVector::Dist(PlayerLocation, EnemyLocation);
                 float InteractionRadius = 200.f;
 
                 if (DistanceToEnemy <= InteractionRadius)
                 {
+                    //Character gets damage
                     UMyCharacterHealthComponent* HealthComponent = PlayerCharacter->FindComponentByClass<UMyCharacterHealthComponent>();
                     if (HealthComponent)
                     {
                         HealthComponent->ApplyDamage(1);
                     }
 
+                    //Damage to the enemy
                     UMyEnemyHealthComponent* EnemyHealthComponent = Enemy->FindComponentByClass<UMyEnemyHealthComponent>();
                     if (EnemyHealthComponent)
                     {

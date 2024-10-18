@@ -12,11 +12,12 @@ class COMPULSORY2_API UItemCounterWidget : public UUserWidget
     GENERATED_BODY()
 
 public:
-    // Sets the item count text
+    // Will update the text UI and show the current number of items that has been collected.
+    // ItemCount is the current number of collected items.
     UFUNCTION(BlueprintCallable, Category = "UI")
     void UpdateItemCount(int32 ItemCount);
 
-    // Reference to the text block in the widget
+    
     UPROPERTY(meta = (BindWidget))
     UTextBlock* ItemCountText;
 

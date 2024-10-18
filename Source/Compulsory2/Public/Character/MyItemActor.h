@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -16,16 +15,13 @@ class COMPULSORY2_API AMyItemActor : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AMyItemActor();
 
 protected:
 
-	// The item’s mesh
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item")
 	UStaticMeshComponent* ItemMesh;
 
-	// Collision capsule for detecting overlaps
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item")
 	UCapsuleComponent* CollisionCapsule;
 

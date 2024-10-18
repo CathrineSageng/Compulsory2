@@ -29,11 +29,8 @@
 #include "Character/MyItemActor.h"
 #include "Character/MyEnemy.h"
 
-
-// Sets default values
 AMyCharacter::AMyCharacter()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -43,27 +40,28 @@ AMyCharacter::AMyCharacter()
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(SpringArm);
 
+	//Initializes the components for movement, input and look. 
 	MovementComponent = CreateDefaultSubobject<UMyMovementComponent>(TEXT("MovementComponent"));
 	LookComponent = CreateDefaultSubobject<UMyLookComponent>(TEXT("LookComponent"));
 	MyInputComponentRef = CreateDefaultSubobject<UMyInputComponent>(TEXT("InputComponent"));
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	//This is the default value for counting the items the character has collected
+	//This is the starting value for how many items the character has collected 
 	ItemCount = 0;
 
-	bCanTakeDamage = true; // Allow damage initially
+	//The character is able to take damage 
+	bCanTakeDamage = true; 
 
+	// Initializes the Health Component
 	HealthComponent = CreateDefaultSubobject<UMyCharacterHealthComponent>(TEXT("HealthComponent"));
 }
 
-
-
-// Called when the game starts
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//Initializes the different systems, input, movement, look and item. 
 	if (!InputSystem)
 	{
 		InputSystem = NewObject<UMyInputSystem>(this);
@@ -84,6 +82,7 @@ void AMyCharacter::BeginPlay()
 		ItemSystem = NewObject<UMyItemSystem>(this);
 	}
 
+	// Here the character's death function gets bind to the helath component on character death event
 	if (HealthComponent)
 	{
 		HealthComponent->OnCharacterDeath.AddDynamic(this, &AMyCharacter::HandleDeath);
@@ -97,7 +96,7 @@ void AMyCharacter::BeginPlay()
 		}
 	}
 
-	// Temporary array to hold all the found actors
+	// All of the items around in the world is stored in the nearby NearbyItems array
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyItemActor::StaticClass(), FoundActors);
 
@@ -110,25 +109,20 @@ void AMyCharacter::BeginPlay()
 		}
 	}
 
-	//YouWon Widget
+	// Stores the total numbers of items in the world to win the game 
 	MaxItemCount = NearbyItems.Num();
 
+	// Item counter widget is created and desplayed on the screen 
 	if (ItemCounterWidgetClass)
 	{
 		ItemCounterWidget = CreateWidget<UItemCounterWidget>(GetWorld(), ItemCounterWidgetClass);
 		if (ItemCounterWidget)
 		{
 			ItemCounterWidget->AddToViewport();
-
-			// Verify ItemCountText is initialized //Ta bort denne if statement kanskje?
-			if (ItemCounterWidget->ItemCountText == nullptr)
-			{
-				UE_LOG(LogTemp, Error, TEXT("ItemCountText is still null after widget creation!"));
-			}
 		}
 	}
 
-	// Initialize InteractionSystem
+	// Initialize InteractionSystem to kill enemies 
 	InteractionSystem = NewObject<UMyInteractionSystem>(this);
 
 	// Get all enemies in the world and count them
@@ -136,7 +130,7 @@ void AMyCharacter::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyEnemy::StaticClass(), FoundEnemies);
 	EnemiesLeft = FoundEnemies.Num();
 
-
+	// Enemy counter widget is created and displayed on the screen 
 	if (EnemyCounterWidgetClass)
 	{
 		EnemyCounterWidget = CreateWidget<UEnemyCounterWidget>(GetWorld(), EnemyCounterWidgetClass);
@@ -146,14 +140,12 @@ void AMyCharacter::BeginPlay()
 			EnemyCounterWidget->UpdateEnemyCount(EnemiesLeft);
 		}
 	}
-	//// Bind to OnComponentHit to detect blocking hits
-	//GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMyCharacter::OnEnemyHit);
 
-	 // Bind overlap and hit events to the capsule component
+	 // Bind overlap and hit to find out when the character is interacting with the enemies
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnEnemyOverlap);
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMyCharacter::OnEnemyHit);
 
-	
+	// Health widget is created and displayed to see the character's helath 
 	if (HealthWidgetClass)
 	{
 		HealthWidget = CreateWidget<UCharacterHealthWidget>(GetWorld(), HealthWidgetClass);
@@ -165,25 +157,25 @@ void AMyCharacter::BeginPlay()
 	}
 }
 
-// Called every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Movement input
 	if (MovementSystem && MovementComponent)
 	{
 		MovementSystem->Execute(this, MovementComponent);
-
-		// Reset movement input to zero after each update
 		MovementComponent->MovementInput = FVector2D::ZeroVector;
 	}
 
+	// Look input
 	if (LookSystem && LookComponent)
 	{
 		LookSystem->Execute(GetController(), LookComponent);
 		LookComponent->LookInput = FVector2D::ZeroVector;
 	}
 
+	// Checks if there are any items to pick up 
 	for (AMyItemActor* Item : NearbyItems)
 	{
 		if (Item && ItemSystem)
@@ -192,17 +184,16 @@ void AMyCharacter::Tick(float DeltaTime)
 		}
 	}
 
-	// Clamp the character's position to stay within the plane boundaries
+	// Clamp the character's position to stay within the plane
 	FVector CurrentLocation = GetActorLocation();
-	float HalfPlaneSize = 1000.0f; // Half of 20x20 plane dimensions
+	// Size of the plane 
+	float HalfPlaneSize = 1000.0f; 
 
 	CurrentLocation.X = FMath::Clamp(CurrentLocation.X, -HalfPlaneSize, HalfPlaneSize);
 	CurrentLocation.Y = FMath::Clamp(CurrentLocation.Y, -HalfPlaneSize, HalfPlaneSize);
 
-	// Apply the clamped position back to the character
 	SetActorLocation(CurrentLocation);
 
-	// Process interactions every tick
 	if (InteractionSystem)
 	{
 		InteractionSystem->ProcessInteractions(this);
@@ -222,14 +213,16 @@ void AMyCharacter::Tick(float DeltaTime)
 	}
 }
 
+// Called when an character is hit by an enemy 
 void AMyCharacter::OnEnemyHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	AMyEnemy* Enemy = Cast<AMyEnemy>(OtherActor);
 	if (Enemy && bCanTakeDamage)
 	{
 		bCanTakeDamage = false;
-		HealthComponent->ApplyDamage(1);  // Apply damage
-		// Update the health widget
+		// Applies damage to character's health
+		HealthComponent->ApplyDamage(1);  
+		// Updates the health widget
 		if (HealthWidget)
 		{
 			HealthWidget->UpdateHealth(HealthComponent->GetCurrentHealth(), HealthComponent->GetMaxHealth());
@@ -238,13 +231,15 @@ void AMyCharacter::OnEnemyHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	}
 }
 
+// This is called when an character overlaps with an enemy 
 void AMyCharacter::OnEnemyOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AMyEnemy* Enemy = Cast<AMyEnemy>(OtherActor);
 	if (Enemy && bCanTakeDamage)
 	{
 		bCanTakeDamage = false;
-		HealthComponent->ApplyDamage(1);  // Apply damage
+		// Applies damage to character's health
+		HealthComponent->ApplyDamage(1); 
 		if (HealthWidget)
 		{
 			HealthWidget->UpdateHealth(HealthComponent->GetCurrentHealth(), HealthComponent->GetMaxHealth());
@@ -253,17 +248,18 @@ void AMyCharacter::OnEnemyOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	}
 }
 
+// The character can take damage again after a cooldown period
 void AMyCharacter::ResetDamageCooldown()
 {
-	bCanTakeDamage = true; // Allow damage again after the cooldown period
+	bCanTakeDamage = true; 
 }
 
+// Increment the item count for the Character
 void AMyCharacter::PickupItem()
-{
-	// Increment the item count
+{ 
 	ItemCount++;
 
-	// Update the UI
+	// Updates the UI
 	if (ItemCounterWidget)
 	{
 		ItemCounterWidget->UpdateItemCount(ItemCount);
@@ -290,18 +286,18 @@ void AMyCharacter::StopLooking()
 	LookComponent->LookInput = FVector2D::ZeroVector;
 }
 
+// Destroys an enemy when spacebar is pressed 
 void AMyCharacter::DestroyEnemy()
 {
-	// Call the interaction system logic for destroying an enemy when "X" is pressed
 	if (InteractionSystem)
 	{
 		InteractionSystem->ProcessInteractions(this);
 	}
 }
 
+// The character's death is handled, the 'Game over widget' is shown
 void AMyCharacter::HandleDeath()
 {
-	// Show the Game Over Widget
 	if (GameOverWidgetClass)
 	{
 		GameOverWidget = CreateWidget<UGameOverWidget>(GetWorld(), GameOverWidgetClass);
@@ -314,6 +310,7 @@ void AMyCharacter::HandleDeath()
 	Destroy();
 }
 
+// Binds the input components and actions 
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);

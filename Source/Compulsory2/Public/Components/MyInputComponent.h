@@ -5,6 +5,7 @@
 #include "InputActionValue.h"
 #include "MyInputComponent.generated.h"
 
+// Forward declarations
 class UInputMappingContext;
 class UInputAction;
 

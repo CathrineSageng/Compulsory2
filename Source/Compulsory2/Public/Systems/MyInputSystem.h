@@ -21,7 +21,9 @@ class COMPULSORY2_API UMyInputSystem : public UObject
 public:
     void InitializeInput(APlayerController* PlayerController, UMyInputComponent* InputComponent, UMyMovementComponent* MovementComponent, UMyLookComponent* LookComponent);
 
+    //Prosess movement input
     UMyMovementComponent* CachedMovementComponent;
+    //Process Look input 
     UMyLookComponent* CachedLookComponent;
 
 private:

@@ -9,21 +9,17 @@
 #include "Components/MyLookComponent.h"
 #include "Components/MyMovementComponent.h"
 
-
+//Binds the actions for movement and looking
 void UMyInputSystem::InitializeInput(APlayerController* PlayerController, UMyInputComponent* InputComponent, UMyMovementComponent* MovementComponent, UMyLookComponent* LookComponent)
 {
-
-    // Cache the input component for use in other functions
     CachedMovementComponent = MovementComponent;
     CachedLookComponent = LookComponent;
 
-    // Get the Enhanced Input Subsystem
     if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
     {
         Subsystem->AddMappingContext(InputComponent->SlashContext, 0);
     }
 
-    // Set up the Enhanced Input Component for action binding
     if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerController->InputComponent))
     {
 
@@ -35,21 +31,19 @@ void UMyInputSystem::InitializeInput(APlayerController* PlayerController, UMyInp
         EnhancedInputComponent->BindAction(InputComponent->LookAction, ETriggerEvent::Triggered, this, &UMyInputSystem::HandleLookInput);
         EnhancedInputComponent->BindAction(InputComponent->LookAction, ETriggerEvent::Completed, this, &UMyInputSystem::StopLookInput);
     }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("Failed to cast InputComponent to UEnhancedInputComponent. Ensure Enhanced Input is enabled and configured correctly."));
-    }
+
 }
 
+//Called when the movement action is triggered 
 void UMyInputSystem::HandleMoveInput(const FInputActionValue& Value)
 {
     if (CachedMovementComponent)
     {
         CachedMovementComponent->MovementInput = Value.Get<FVector2D>();
-        /* UE_LOG(LogTemp, Warning, TEXT("Movement Input: X=%f, Y=%f"), CachedMovementComponent->MovementInput.X, CachedMovementComponent->MovementInput.Y);*/
     }
 }
 
+//Stops the movement input
 void UMyInputSystem::StopMoveInput()
 {
     if (CachedMovementComponent)
@@ -58,15 +52,16 @@ void UMyInputSystem::StopMoveInput()
     }
 }
 
+//Called when the look action is triggered. 
 void UMyInputSystem::HandleLookInput(const FInputActionValue& Value)
 {
     if (CachedLookComponent)
     {
         CachedLookComponent->LookInput = Value.Get<FVector2D>();
-        /*UE_LOG(LogTemp, Warning, TEXT("Look Input: X=%f, Y=%f"), CachedLookComponent->LookInput.X, CachedLookComponent->LookInput.Y);*/
     }
 }
 
+//Stops the look input 
 void UMyInputSystem::StopLookInput()
 {
     if (CachedLookComponent)

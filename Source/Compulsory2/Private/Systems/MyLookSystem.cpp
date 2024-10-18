@@ -2,11 +2,11 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/MyLookComponent.h"
 
+//Process the look input to rotate the camera
 void UMyLookSystem::Execute(AController* Controller, UMyLookComponent* LookComponent)
 {
     if (LookComponent)
     {
-        // Cast Controller to APlayerController
         if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
         {
             PlayerController->AddPitchInput(LookComponent->LookInput.Y);

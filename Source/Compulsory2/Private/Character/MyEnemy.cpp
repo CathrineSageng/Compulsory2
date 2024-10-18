@@ -20,6 +20,7 @@ void AMyEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+    //Stores a reference to the character that the enemy can follow 
 	TargetActor = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 }
 
@@ -27,6 +28,7 @@ void AMyEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+    //Updates the enemies behavior
     if (TargetActor)
     {
         float DistanceToPlayer = FVector::Dist(GetActorLocation(), TargetActor->GetActorLocation());
@@ -38,13 +40,13 @@ void AMyEnemy::Tick(float DeltaTime)
 
             if (AIController)
             {
-                // Move the enemy toward the player
+                // Moves the enemy toward the character
                 AIController->MoveToActor(TargetActor);
             }
         }
         else
         {
-            // Stop the movement if the player is out of range
+            //Stops the movement on the enemy if the character is our if range. 
             AAIController* AIController = Cast<AAIController>(GetController());
             if (AIController)
             {

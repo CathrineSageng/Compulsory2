@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -14,7 +13,8 @@ class COMPULSORY2_API UEnemyCounterWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-
+	// Updated the count down of the enemy.
+	// int32 EnemiesLeft is the number of how many enemies are left in the game.
 	void UpdateEnemyCount(int32 EnemiesLeft);
 
 	UPROPERTY(meta = (BindWidget))

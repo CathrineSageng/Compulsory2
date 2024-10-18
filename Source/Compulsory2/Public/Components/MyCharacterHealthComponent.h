@@ -4,7 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "MyCharacterHealthComponent.generated.h"
 
-// Declare the delegate type outside the class scope but inside the header file
+//This delegate will be called when the character dies 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeath);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -15,31 +15,32 @@ class COMPULSORY2_API UMyCharacterHealthComponent : public UActorComponent
 public:
     UMyCharacterHealthComponent();
 
-    // Function to apply damage to the character
     void ApplyDamage(int32 Damage);
 
     // Event for when the character dies
     UPROPERTY(BlueprintAssignable, Category = "Health")
     FOnCharacterDeath OnCharacterDeath;
 
-    // Function to get the current health
+    //The current helath on the character 
     int32 GetCurrentHealth() const;
 
-    // Function to get the max health
+    //Gets the maximum health on the character 
     int32 GetMaxHealth() const;
 
 protected:
     virtual void BeginPlay() override;
 
 private:
+    //The currents hits the character has taken 
     int32 CurrentHits;
 
+    //The maximum hits om the character is 4 
     UPROPERTY(EditDefaultsOnly, Category = "Health")
-    int32 MaxHits = 4; // Maximum hits allowed before death
+    int32 MaxHits = 4; 
 
-    // Current health of the character
+    // Current health on the character
     int32 CurrentHealth;
 
-    // Max health of the character
+    // Max health on the character
     int32 MaxHealth;
 };

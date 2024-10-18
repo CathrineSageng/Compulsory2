@@ -5,14 +5,17 @@ UMyEnemyHealthComponent::UMyEnemyHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
+	//Default health
 	Health = 100.f;
 }
 
+//Applies damage to the enemy
 void UMyEnemyHealthComponent::TakeDamage(float DamageAmount)
 {
 	Health -= DamageAmount;
 }
 
+//Checks if the enemy is dead 
 bool UMyEnemyHealthComponent::IsDead() const
 {
 	return Health <= 0;
