@@ -110,7 +110,7 @@ void AMyCharacter::BeginPlay()
 		}
 	}
 
-	// Initialize MaxItemCount to the total number of items //YouWon Widget
+	//YouWon Widget
 	MaxItemCount = NearbyItems.Num();
 
 	if (ItemCounterWidgetClass)
@@ -119,32 +119,22 @@ void AMyCharacter::BeginPlay()
 		if (ItemCounterWidget)
 		{
 			ItemCounterWidget->AddToViewport();
-			UE_LOG(LogTemp, Warning, TEXT("ItemCounterWidget created successfully."));
 
-			// Verify ItemCountText is initialized
+			// Verify ItemCountText is initialized //Ta bort denne if statement kanskje?
 			if (ItemCounterWidget->ItemCountText == nullptr)
 			{
 				UE_LOG(LogTemp, Error, TEXT("ItemCountText is still null after widget creation!"));
 			}
 		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Failed to create ItemCounterWidget!"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("ItemCounterWidgetClass is null!"));
 	}
 
-	//Rebekka
-// Initialize InteractionSystem
+	// Initialize InteractionSystem
 	InteractionSystem = NewObject<UMyInteractionSystem>(this);
 
 	// Get all enemies in the world and count them
 	TArray<AActor*> FoundEnemies;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyEnemy::StaticClass(), FoundEnemies);
-	EnemiesLeft = FoundEnemies.Num(); // Initialize the enemy count
+	EnemiesLeft = FoundEnemies.Num();
 
 
 	if (EnemyCounterWidgetClass)
@@ -153,7 +143,7 @@ void AMyCharacter::BeginPlay()
 		if (EnemyCounterWidget)
 		{
 			EnemyCounterWidget->AddToViewport();
-			EnemyCounterWidget->UpdateEnemyCount(EnemiesLeft);  // Add UpdateEnemyCount function in the widget
+			EnemyCounterWidget->UpdateEnemyCount(EnemiesLeft);
 		}
 	}
 	//// Bind to OnComponentHit to detect blocking hits
@@ -163,7 +153,7 @@ void AMyCharacter::BeginPlay()
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnEnemyOverlap);
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMyCharacter::OnEnemyHit);
 
-	// Initialize Health Widget
+	
 	if (HealthWidgetClass)
 	{
 		HealthWidget = CreateWidget<UCharacterHealthWidget>(GetWorld(), HealthWidgetClass);
@@ -174,8 +164,6 @@ void AMyCharacter::BeginPlay()
 		}
 	}
 }
-
-
 
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
@@ -223,21 +211,12 @@ void AMyCharacter::Tick(float DeltaTime)
 	// Check if all items are collected and all enemies are killed
 	if (ItemCount == MaxItemCount && EnemiesLeft == 0)
 	{
-		// Show the You Won Widget
 		if (YouWonWidgetClass)
 		{
 			YouWonWidget = CreateWidget<UYouWonWidget>(GetWorld(), YouWonWidgetClass);
 			if (YouWonWidget)
 			{
 				YouWonWidget->AddToViewport();
-
-				// Optionally, stop player input or freeze gameplay
-				APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-				if (PlayerController)
-				{
-					PlayerController->SetInputMode(FInputModeUIOnly());  // Focus on UI
-					PlayerController->bShowMouseCursor = true;           // Show cursor for UI interaction
-				}
 			}
 		}
 	}
@@ -329,14 +308,6 @@ void AMyCharacter::HandleDeath()
 		if (GameOverWidget)
 		{
 			GameOverWidget->AddToViewport();
-
-			// Optionally, stop player input or freeze gameplay
-			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-			if (PlayerController)
-			{
-				PlayerController->SetInputMode(FInputModeUIOnly());  // Focus on UI
-				PlayerController->bShowMouseCursor = true;           // Show cursor for UI interaction
-			}
 		}
 	}
 
@@ -359,7 +330,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 			EnhancedInputComponent->BindAction(MyInputComponentRef->LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);
 			EnhancedInputComponent->BindAction(MyInputComponentRef->LookAction, ETriggerEvent::Completed, this, &AMyCharacter::StopLooking);
 
-			// Bind the "X" key action for destroying the enemy
+			// Bind destroying enemy action
 			if (DestroyEnemyAction)
 			{
 				EnhancedInputComponent->BindAction(DestroyEnemyAction, ETriggerEvent::Triggered, this, &AMyCharacter::DestroyEnemy);

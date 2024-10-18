@@ -106,20 +106,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> EnemyCounterWidgetClass;
 
-	// Health Widget Class to spawn in-game
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UCharacterHealthWidget> HealthWidgetClass;
-
-	// Actual instance of the health widget
 	UCharacterHealthWidget* HealthWidget;
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UGameOverWidget> GameOverWidgetClass;
-
 	UGameOverWidget* GameOverWidget;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UYouWonWidget> YouWonWidgetClass;
 	UYouWonWidget* YouWonWidget;
 private:

@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,9 +6,6 @@
 #include "Character/MyCharacter.h"
 #include "MyInteractionSystem.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class COMPULSORY2_API UMyInteractionSystem : public UObject
 {

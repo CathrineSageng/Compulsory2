@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 
 #include "Systems/MyInteractionSystem.h"
 #include "Character/MyEnemy.h"
@@ -11,7 +9,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/MyCharacterHealthComponent.h"
 
-//Handles inteaction between the player (character) and the nearby enemies. 
+// Handles inteaction between the player (character) and the nearby enemies. 
 
 void UMyInteractionSystem::ProcessInteractions(AMyCharacter* PlayerCharacter)
 {
@@ -38,7 +36,7 @@ void UMyInteractionSystem::ProcessInteractions(AMyCharacter* PlayerCharacter)
                     UMyCharacterHealthComponent* HealthComponent = PlayerCharacter->FindComponentByClass<UMyCharacterHealthComponent>();
                     if (HealthComponent)
                     {
-                        HealthComponent->ApplyDamage(1); // Apply 1 hit of damage to the character
+                        HealthComponent->ApplyDamage(1);
                     }
 
                     UMyEnemyHealthComponent* EnemyHealthComponent = Enemy->FindComponentByClass<UMyEnemyHealthComponent>();
@@ -48,10 +46,10 @@ void UMyInteractionSystem::ProcessInteractions(AMyCharacter* PlayerCharacter)
                         if (EnemyHealthComponent->IsDead())
                         {
                             Enemy->Destroy();
-                            PlayerCharacter->EnemiesLeft--;  // Decrement enemy count
+                            PlayerCharacter->EnemiesLeft--; 
                             if (PlayerCharacter->EnemyCounterWidget)
                             {
-                                PlayerCharacter->EnemyCounterWidget->UpdateEnemyCount(PlayerCharacter->EnemiesLeft);  // Update HUD
+                                PlayerCharacter->EnemyCounterWidget->UpdateEnemyCount(PlayerCharacter->EnemiesLeft);
                             }
                         }
                     }
